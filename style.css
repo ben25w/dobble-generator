@@ -186,6 +186,44 @@ h2 {
   padding: 0;
 }
 
+/* ── Colour picker ── */
+.colour-picker {
+  margin-bottom: 20px;
+}
+
+.picker-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.15s;
+  padding: 0;
+}
+
+.swatch:hover {
+  transform: scale(1.12);
+}
+
+.swatch.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px #333, 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Buttons ── */
 .generate-btn {
   display: block;
   width: 100%;
@@ -299,4 +337,5 @@ h2 {
   h1 { font-size: 1.5rem; }
   .step { padding: 20px 16px; }
   .thumb-wrapper, .thumb-wrapper img { width: 56px; height: 56px; }
+  .swatch { width: 38px; height: 38px; }
 }

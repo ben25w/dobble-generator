@@ -1,0 +1,302 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #EDEDFF;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #333;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 6px;
+  color: #2c3e50;
+}
+
+.subtitle {
+  text-align: center;
+  color: #777;
+  margin-bottom: 36px;
+  font-size: 1.05rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 18px;
+  color: #2c3e50;
+}
+
+.step {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ── Step 1: Size buttons ── */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.size-btn {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.size-btn span {
+  font-size: 0.82rem;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.size-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.size-btn.green  { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+.size-btn.blue   { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+.size-btn.purple { background: #f3e5f5; color: #7b1fa2; border-color: #ce93d8; }
+.size-btn.debug  { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
+
+.debug-toggle {
+  margin-top: 10px;
+}
+
+/* ── Step 2: Upload ── */
+.upload-message {
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: #1565c0;
+  margin-bottom: 14px;
+}
+
+.drop-zone {
+  border: 3px dashed #ccc;
+  border-radius: 12px;
+  padding: 38px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: #90caf9;
+  background: #f5f9ff;
+}
+
+.drop-zone .drop-main {
+  color: #777;
+  font-size: 1.05rem;
+}
+
+.drop-zone .hint {
+  font-size: 0.82rem;
+  margin-top: 6px;
+  color: #aaa;
+}
+
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.counter {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #555;
+  margin: 6px 0 12px;
+}
+
+.error-message {
+  color: #c62828;
+  font-weight: 500;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.thumb-wrapper {
+  position: relative;
+  width: 68px;
+  height: 68px;
+}
+
+.thumb-wrapper img {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.thumb-remove {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 22px;
+  height: 22px;
+  background: #ef5350;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.generate-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: #66bb6a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.generate-btn:hover:not(:disabled) {
+  background: #43a047;
+  transform: translateY(-1px);
+}
+
+.generate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.back-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #888;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.back-btn:hover {
+  border-color: #aaa;
+  color: #555;
+}
+
+/* ── Step 3: Progress ── */
+.progress-track {
+  width: 100%;
+  height: 22px;
+  background: #eee;
+  border-radius: 11px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #81c784, #66bb6a);
+  border-radius: 11px;
+  transition: width 0.25s ease;
+}
+
+.progress-text {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* ── Step 4: Download ── */
+.summary {
+  font-size: 1.05rem;
+  color: #555;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.download-btn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  background: #42a5f5;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.download-btn:hover {
+  background: #1e88e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 18px rgba(33, 150, 243, 0.3);
+}
+
+/* ── Responsive ── */
+@media (min-width: 520px) {
+  .button-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .size-btn:not(.debug) {
+    flex: 1 1 calc(33.3% - 8px);
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  .container { padding: 10px 0; }
+  h1 { font-size: 1.5rem; }
+  .step { padding: 20px 16px; }
+  .thumb-wrapper, .thumb-wrapper img { width: 56px; height: 56px; }
+}

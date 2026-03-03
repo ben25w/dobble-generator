@@ -1,67 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dobble Card Generator</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <h1>🎯 Dobble Card Generator</h1>
-    <p class="subtitle">Upload your own images and generate printable Dobble cards</p>
+# Dobble Card Generator
 
-    <!-- Step 1: Choose Game Size -->
-    <div id="step1" class="step">
-      <h2>Step 1: Choose Game Size</h2>
-      <div class="button-group">
-        <button class="size-btn green" data-order="2">🟢 Small Game<br><span>7 images → 7 cards (3 per card)</span></button>
-        <button class="size-btn blue" data-order="3">🔵 Medium Game<br><span>13 images → 13 cards (4 per card)</span></button>
-        <button class="size-btn purple" data-order="4">🟣 Large Game<br><span>21 images → 21 cards (5 per card)</span></button>
-      </div>
-      <!-- Debug button: visible during testing. To hide later, see app.js comment -->
-      <div id="debugBtn" class="debug-toggle">
-        <button class="size-btn debug" data-order="2" data-debug="true">🔧 Debug (3 per card)<br><span>7 images with labels to verify matching</span></button>
-      </div>
-    </div>
+Upload your own images and generate printable Dobble / Spot It cards as a PDF.
 
-    <!-- Step 2: Upload Images -->
-    <div id="step2" class="step hidden">
-      <h2>Step 2: Upload Images</h2>
-      <p id="uploadMessage" class="upload-message"></p>
-      <div id="dropZone" class="drop-zone">
-        <p class="drop-main">Click or drag images here</p>
-        <p class="hint">PNG or JPG files</p>
-        <input type="file" id="fileInput" multiple accept="image/png,image/jpeg">
-      </div>
-      <p id="counter" class="counter"></p>
-      <p id="uploadError" class="error-message hidden"></p>
-      <div id="thumbnails" class="thumbnails"></div>
-      <button id="generateBtn" class="generate-btn" disabled>Generate Cards</button>
-      <button id="backBtn" class="back-btn">← Change Game Size</button>
-    </div>
+## How to use
 
-    <!-- Step 3: Generating -->
-    <div id="step3" class="step hidden">
-      <h2>Generating Your Cards…</h2>
-      <div class="progress-track">
-        <div id="progressBar" class="progress-fill"></div>
-      </div>
-      <p id="progressText" class="progress-text">Preparing…</p>
-    </div>
+1. Open the site
+2. Choose a game size (Small / Medium / Large)
+3. Upload the required number of images (PNG or JPG)
+4. Click **Generate Cards**
+5. Download the PDF and print on A4
 
-    <!-- Step 4: Download -->
-    <div id="step4" class="step hidden">
-      <h2>Your Cards Are Ready! ✓</h2>
-      <p id="summaryText" class="summary"></p>
-      <button id="downloadBtn" class="download-btn">📥 Download PDF</button>
-      <button id="restartBtn" class="back-btn">Start Again</button>
-    </div>
-  </div>
+## Game sizes
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="card-engine.js"></script>
-  <script src="pdf-builder.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+| Size   | Images | Cards | Per card | A4 pages |
+|--------|--------|-------|----------|----------|
+| Small  | 7      | 7     | 3        | 2        |
+| Medium | 13     | 13    | 4        | 4        |
+| Large  | 21     | 21    | 5        | 6        |
+
+## Privacy
+
+Everything runs in the browser. Images never leave your device.
+
+## Debug mode
+
+Add `?debug=true` to the URL to show the debug button.
+Debug mode labels every image on every card so you can verify
+each pair of cards shares exactly one image.
+
+## Stack
+
+- Vanilla HTML / CSS / JS
+- [jsPDF](https://github.com/parallax/jsPDF) for PDF generation (loaded from CDN)
+- Projective plane algorithm for card generation
+- Hosted on Cloudflare Pages (auto-deploys from GitHub)

@@ -1,47 +1,44 @@
 /*
  * pdf-builder.js — Draws circular Dobble cards on canvas, assembles PDF
  *
- * Each card is rendered on an off-screen canvas at ~300 DPI,
- * then placed 4-up on A4 portrait pages.
+ * Cards print at 130mm diameter, 2 per A4 page (large & easy to cut).
  */
 
-var _CANVAS  = 1000;   // canvas pixels
+var _CANVAS  = 1000;
 var _CENTER  = 500;
-var _RADIUS  = 440;    // card circle radius in canvas pixels
+var _RADIUS  = 440;
+var _BORDER  = 14;     // canvas-pixel stroke width → ~1.8 mm printed
 
-/* Image slot positions — offsets from card centre (px), plus bounding-box size */
+/* Image slot positions — offsets from card centre, plus size in canvas px */
 var _LAYOUTS = {
   3: [
-    { x:    0, y: -170, size: 250 },   // large  — top-centre
-    { x: -155, y:  105, size: 195 },   // medium — bottom-left
-    { x:  155, y:  105, size: 195 }    // medium — bottom-right
+    { x:    0, y: -170, size: 280 },   // large  — top-centre
+    { x: -155, y:  105, size: 220 },   // medium — bottom-left
+    { x:  155, y:  105, size: 220 }    // medium — bottom-right
   ],
   4: [
-    { x: -145, y: -145, size: 225 },   // large  — top-left
-    { x:  145, y: -160, size: 150 },   // small  — top-right
-    { x: -150, y:  140, size: 150 },   // small  — bottom-left
-    { x:  145, y:  130, size: 190 }    // medium — bottom-right
+    { x: -145, y: -145, size: 250 },   // large  — top-left
+    { x:  145, y: -160, size: 170 },   // small  — top-right
+    { x: -150, y:  140, size: 170 },   // small  — bottom-left
+    { x:  145, y:  130, size: 210 }    // medium — bottom-right
   ],
   5: [
-    { x:  -75, y: -240, size: 140 },   // small  — top-centre
-    { x: -205, y:  -50, size: 170 },   // medium — left-middle
-    { x:  115, y: -115, size: 210 },   // large  — centre-right
-    { x: -175, y:  175, size: 140 },   // small  — bottom-left
-    { x:  105, y:  155, size: 165 }    // medium — bottom-right
+    { x: -100, y: -260, size: 150 },   // small  — top-centre
+    { x: -205, y:  -50, size: 190 },   // medium — left-middle
+    { x:  115, y: -115, size: 235 },   // large  — centre-right
+    { x: -175, y:  175, size: 160 },   // small  — bottom-left
+    { x:  105, y:  155, size: 185 }    // medium — bottom-right
   ]
 };
 
-/* PDF placement — A4 portrait 210×297 mm, 2×2 grid */
-var _DIAM_MM = 85;
+/* PDF placement — A4 portrait, 2 cards per page, stacked vertically */
+var _DIAM_MM = 130;
 var _HALF    = _DIAM_MM / 2;
 var _SPOTS   = [
-  { x:  52.5, y:  78  },   // top-left
-  { x: 157.5, y:  78  },   // top-right
-  { x:  52.5, y: 200  },   // bottom-left
-  { x: 157.5, y: 200  }    // bottom-right
+  { x: 105, y:  77 },   // top card
+  { x: 105, y: 220 }    // bottom card
 ];
 
-/* Pre-set rotation angles (degrees) — shuffled per card for variety */
 var _ANGLES = [0, 25, 55, 90, 130, 165, 195, 230, 265, 300, 330, 350];
 
 function _shuffle(arr) {
@@ -53,26 +50,24 @@ function _shuffle(arr) {
   return a;
 }
 
-/* ── Draw one card on the provided canvas context ── */
-function _drawCard(ctx, imageIndices, images, layout, debug) {
-  // White background (avoids black on JPEG export)
+/* ── Draw one card ── */
+function _drawCard(ctx, imageIndices, images, layout, debug, borderColour) {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, _CANVAS, _CANVAS);
 
-  // Circle border
+  // Thick coloured border
   ctx.beginPath();
   ctx.arc(_CENTER, _CENTER, _RADIUS, 0, Math.PI * 2);
-  ctx.strokeStyle = "#cccccc";
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = borderColour;
+  ctx.lineWidth   = _BORDER;
   ctx.stroke();
 
-  // Clip all drawing to inside the circle
+  // Clip images to inside the border
   ctx.save();
   ctx.beginPath();
-  ctx.arc(_CENTER, _CENTER, _RADIUS - 4, 0, Math.PI * 2);
+  ctx.arc(_CENTER, _CENTER, _RADIUS - _BORDER / 2 - 1, 0, Math.PI * 2);
   ctx.clip();
 
-  // Shuffle order so each image lands in a different-sized slot per card
   var shuffled = _shuffle(imageIndices);
   var angles   = _shuffle(_ANGLES);
 
@@ -86,7 +81,6 @@ function _drawCard(ctx, imageIndices, images, layout, debug) {
     ctx.translate(_CENTER + slot.x, _CENTER + slot.y);
     ctx.rotate(deg * Math.PI / 180);
 
-    // Fit image maintaining aspect ratio
     var ar = img.naturalWidth / img.naturalHeight;
     var dw, dh;
     if (ar >= 1) { dw = slot.size; dh = slot.size / ar; }
@@ -95,7 +89,6 @@ function _drawCard(ctx, imageIndices, images, layout, debug) {
     ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
 
-    // Debug label (always upright, centred on the image position)
     if (debug) {
       ctx.save();
       ctx.translate(_CENTER + slot.x, _CENTER + slot.y);
@@ -112,14 +105,15 @@ function _drawCard(ctx, imageIndices, images, layout, debug) {
     }
   }
 
-  ctx.restore(); // release clip
+  ctx.restore();
 }
 
-/* ── Main entry: build and return a jsPDF document ── */
-async function buildPDF(cards, images, perCard, debug, onProgress) {
+/* ── Main entry ── */
+async function buildPDF(cards, images, perCard, debug, borderColour, onProgress) {
   var jsPDF  = window.jspdf.jsPDF;
   var doc    = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   var layout = _LAYOUTS[perCard];
+  var perPage = _SPOTS.length;          // 2
 
   var canvas  = document.createElement("canvas");
   canvas.width  = _CANVAS;
@@ -127,16 +121,15 @@ async function buildPDF(cards, images, perCard, debug, onProgress) {
   var ctx = canvas.getContext("2d");
 
   for (var i = 0; i < cards.length; i++) {
-    if (i > 0 && i % 4 === 0) doc.addPage();
+    if (i > 0 && i % perPage === 0) doc.addPage();
 
-    _drawCard(ctx, cards[i], images, layout, debug);
+    _drawCard(ctx, cards[i], images, layout, debug, borderColour);
 
     var data = canvas.toDataURL("image/jpeg", 0.95);
-    var pos  = _SPOTS[i % 4];
+    var pos  = _SPOTS[i % perPage];
     doc.addImage(data, "JPEG", pos.x - _HALF, pos.y - _HALF, _DIAM_MM, _DIAM_MM);
 
     if (onProgress) onProgress((i + 1) / cards.length);
-    // Yield so the browser can repaint the progress bar
     await new Promise(function (r) { setTimeout(r, 15); });
   }
 

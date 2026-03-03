@@ -4,17 +4,18 @@
 (function () {
 
   /* ── State ── */
-  var order       = null;
-  var debug       = false;
-  var files       = [];
-  var needed      = 0;
-  var pdfDoc      = null;
+  var order        = null;
+  var debug        = false;
+  var files        = [];
+  var needed       = 0;
+  var borderColour = "#111111";
+  var pdfDoc       = null;
 
-  /* ── Config per order ── */
+  /* ── Config per order  (pages based on 2 cards per A4 page) ── */
   var CFG = {
-    2: { images: 7,  cards: 7,  per: 3, pages: 2, label: "Small"  },
-    3: { images: 13, cards: 13, per: 4, pages: 4, label: "Medium" },
-    4: { images: 21, cards: 21, per: 5, pages: 6, label: "Large"  }
+    2: { images: 7,  cards: 7,  per: 3, pages: 4,  label: "Small"  },
+    3: { images: 13, cards: 13, per: 4, pages: 7,  label: "Medium" },
+    4: { images: 21, cards: 21, per: 5, pages: 11, label: "Large"  }
   };
 
   /* ── DOM refs ── */
@@ -36,12 +37,12 @@
   var restartBtn  = document.getElementById("restartBtn");
   var summary     = document.getElementById("summaryText");
   var debugWrap   = document.getElementById("debugBtn");
+  var swatches    = document.querySelectorAll(".swatch");
 
   /* ─────────────────────────────────────
      Debug button visibility
-     During testing: it's always visible.
-     When done: uncomment these two lines
-     so it only appears with ?debug=true
+     During testing: always visible.
+     When done: uncomment these two lines.
   ───────────────────────────────────── */
   // debugWrap.style.display = "none";
   // if (location.search.indexOf("debug=true") !== -1) debugWrap.style.display = "block";
@@ -59,6 +60,15 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  /* ── Colour picker ── */
+  for (var s = 0; s < swatches.length; s++) {
+    swatches[s].addEventListener("click", function () {
+      for (var k = 0; k < swatches.length; k++) swatches[k].classList.remove("selected");
+      this.classList.add("selected");
+      borderColour = this.getAttribute("data-colour");
+    });
+  }
+
   /* ── Step 1 — size selection ── */
   var btns = document.querySelectorAll(".size-btn");
   for (var b = 0; b < btns.length; b++) {
@@ -67,7 +77,6 @@
       debug  = this.getAttribute("data-debug") === "true";
       needed = CFG[order].images;
 
-      // reset upload
       files = [];
       thumbs.innerHTML = "";
       fileInput.value   = "";
@@ -164,7 +173,6 @@
     bar.style.width = "0%";
     progTxt.textContent = "Loading images…";
 
-    // Load every file as an Image object
     var promises = files.map(function (f) {
       return new Promise(function (resolve, reject) {
         var reader = new FileReader();
@@ -191,13 +199,13 @@
         var cfg = CFG[order];
         progTxt.textContent = "Drawing " + cfg.cards + " cards…";
 
-        return buildPDF(cards, images, cfg.per, debug, function (p) {
+        return buildPDF(cards, images, cfg.per, debug, borderColour, function (p) {
           bar.style.width = (8 + Math.round(p * 88)) + "%";
           progTxt.textContent = "Drawing card " + Math.ceil(p * cfg.cards) + " of " + cfg.cards + "…";
         });
       })
       .then(function (doc) {
-        if (!doc) return;            // error already shown
+        if (!doc) return;
         pdfDoc = doc;
         bar.style.width = "100%";
         progTxt.textContent = "Done!";
@@ -220,10 +228,13 @@
   });
 
   restartBtn.addEventListener("click", function () {
-    pdfDoc = null;
-    order  = null;
-    debug  = false;
-    files  = [];
+    pdfDoc       = null;
+    order        = null;
+    debug        = false;
+    files        = [];
+    borderColour = "#111111";
+    for (var k = 0; k < swatches.length; k++) swatches[k].classList.remove("selected");
+    swatches[0].classList.add("selected");
     showStep(1);
   });
 
